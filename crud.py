@@ -6,10 +6,11 @@ from googleapiclient.discovery import build
 from google.auth.exceptions import MutualTLSChannelError
 import psycopg2
 from psycopg2.extras import execute_values
+from googleapiclient.errors import HttpError
 
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
-SAMPLE_SPREADSHEET_ID = "1SvGvOXTO-SMloCklizlcN252uaaOw-9XxEL-x-fDXGw"
-SAMPLE_RANGE_NAME = "Sheet1"
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+SPREADSHEET_ID = "1SvGvOXTO-SMloCklizlcN252uaaOw-9XxEL-x-fDXGw"
+RANGE_NAME = "Sheet1"
 db_name = "superjoin"
 db_user = "postgres"
 db_password = "IamaCSstudent"
@@ -67,8 +68,8 @@ def fetch_db(conn):
     cursor = conn.cursor()
     cursor.execute("""select * from company""")
     rows = cursor.fetchall()
-    for row in rows:
-        print(row)
+    # for row in rows:
+    #     print(row)
     return rows
 
 def fetch_sheet(sheet_service, id, sheet_name):
@@ -98,15 +99,34 @@ def update_db(conn, vals):
     conn.commit()
 
 def update_sheet(sheet_service, id, sheet_name, data):
-    body = {"values": data}
-    sheet_service.spreadsheets().values().update(
-        spreadsheetId=id, range=sheet_name, valueInputOption="RAW", body=body
-    ).execute()
+    no_index_data = [x[1:] for x in data]
+    print(no_index_data)
+    body = {"values": no_index_data}
+    try:
+        sheet_service.spreadsheets().values().update(
+            spreadsheetId=id, range=sheet_name, valueInputOption="USER_ENTERED", body=body
+        ).execute()
+    except HttpError as e:
+        print(f"Encountered error: {e} while trying to update sheet!")
 
-conn = get_db_instance()
-sheet_service = sheet_service()
-spawn_table(conn, 'company')
-data = fetch_sheet(sheet_service, SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
-print(len(data))
-update_db(conn, data)
-print(fetch_db(conn))
+def sync(dbChange):
+    if dbChange:
+        service = sheet_service()
+        db_data = fetch_db()
+        update_sheet(service, SPREADSHEET_ID, RANGE_NAME, db_data)
+    else:
+        conn = get_db_instance()
+        sheet_service = sheet_service()
+        spawn_table(conn, 'company')
+        data = fetch_sheet(sheet_service, SPREADSHEET_ID, RANGE_NAME)
+        update_db(conn, data)
+
+# conn = get_db_instance()
+# sheet_service = sheet_service()
+# spawn_table(conn, 'company')
+# data = fetch_sheet(sheet_service, SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
+# print(len(data))
+# update_db(conn, data)
+# data = fetch_db(conn)
+# update_sheet(sheet_service, SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME, data)
+
