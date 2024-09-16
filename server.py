@@ -81,10 +81,11 @@ def update_db(vals):
     conn = get_db_instance()
     cursor = conn.cursor()
     vals = vals[1:]
-    
+    # cursor.execute("""drop table company""")
+    # spawn_table(conn, "company")
     cursor.execute("""truncate table company""")
     cursor.execute("""ALTER SEQUENCE company_id_seq RESTART WITH 1""")
-    
+    print(tuple(row) for row in vals)
     execute_values(cursor,
         """insert into company (company, contact, country) values %s""",
         [tuple(row) for row in vals]
@@ -172,14 +173,14 @@ def receive_data():
     """
     try:
         data = request.json
-
+        print(data)
         # Process the data and store it in your database
         # Replace this with your database logic
         update_db(data)
         # print(data)
         return jsonify({"message": "Data received successfully"}), 200
     except Exception as e:
-        return jsonify({"detail": str(e)}), 500
+        print(str(e))
 
 # Sheet sync
 def sheet_sync():
