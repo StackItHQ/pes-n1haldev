@@ -61,3 +61,15 @@ All the best ✨.
 ## Developer's Section
 https://github.com/StackItHQ/pes-n1haldev/blob/feedback/Explanation_video.mkv
 https://drive.google.com/file/d/13AnJGBKNfOsfWfuuzvgCx8qqj76XGrXB/view?usp=sharing
+
+The main file in my code is the server.py file which is run using the command: python server.py
+
+### Approach
+The approach I used to solve this problem is to create a server that listens for incoming requests from the Apps Script embedded into the Google sheet. 
+This was acheived by building a basic server using flask and then using ngrok to create a tunnel for requests coming from the internet to come to my system.
+
+This makes it truly real-time synchronising due to the fact that the entire process of db transactions through custom API and the sheet transaction using google sheets sync the other immediately. 
+
+GSheet ---> DB (This is possible due to incoming incoming requests from the Apps Script which is highly event-driven)
+
+DB ---> GSheet (This happens serially after a transaction happens on the db, immediately the sheet_sync function is called which immediately updates the data in the GSheet)
