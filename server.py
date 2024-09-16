@@ -165,7 +165,8 @@ def delete(id):
     except Exception as e:
         print(f"Error: {e}")
 
-# Loading data from Apps Scripts
+
+# Capturing edits of data from Apps Scripts
 @app.route("/api/receiver", methods=["POST"])       # Tested
 def receive_data():
     """
@@ -181,6 +182,7 @@ def receive_data():
         return jsonify({"message": "Data received successfully"}), 200
     except Exception as e:
         print(str(e))
+        return jsonify({"Error": f"{str(e)}"})
 
 # Sheet sync
 def sheet_sync():
