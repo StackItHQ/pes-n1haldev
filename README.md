@@ -60,3 +60,4 @@ All the best ✨.
 
 ## Developer's Section
 https://github.com/StackItHQ/pes-n1haldev/blob/feedback/Explanation_video.mkv
+https://drive.google.com/file/d/13AnJGBKNfOsfWfuuzvgCx8qqj76XGrXB/view?usp=sharing
